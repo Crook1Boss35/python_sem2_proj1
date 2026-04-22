@@ -22,8 +22,11 @@ class OpenRouterClient:
             "temperature": temperature,
         }
 
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            response = await client.post(url, headers=headers, json=payload)
+        try:
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                response = await client.post(url, headers=headers, json=payload)
+        except httpx.HTTPError as e:
+            raise ExternalServiceError("Failed to reach OpenRouter service") from e
 
         if response.status_code >= 400:
             raise ExternalServiceError(
